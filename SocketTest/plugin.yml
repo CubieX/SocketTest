@@ -1,0 +1,21 @@
+name: SocketTest
+main: com.github.CubieX.SocketTest.SocketTest
+author: CubieX
+softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit, WorldGuard]
+version: 0.0.1
+description: Exchange data between two servers
+
+commands:
+    st:
+      description: Using SocketTest
+      usage: /st version | reload | serverstart | serverstop | clientsend
+
+permissions:
+    sockettest.use:
+        description: Use normal commands
+        default: op
+    sockettest.admin:
+        description: Allows use of all commands and effects
+        default: op
+        children:
+          sockettest.use: true

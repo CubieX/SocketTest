@@ -1,0 +1,15 @@
+# Do NOT change the config version!
+config_version: 1
+# Set locale for user dialog messages
+language: de
+# Enable debug output
+debug: false
+# Is this server also the server for SocketTest?
+# true  -> SocketTest will act as communication server (only ONE server allowed!)
+# false -> SocketTest will take the role of the client (only ONE client allowed!)
+isServer: true
+# Server name or IP (e.g. "localhost" or "123.12.32.23")
+# only relevat for the CLIENT
+server: 'myServer.name.or.ip'
+# Port to use for connection between SERVER and CLIENT (set equal for both!)
+port: 4444
