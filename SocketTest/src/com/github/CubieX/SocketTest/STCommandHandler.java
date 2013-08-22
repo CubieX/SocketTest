@@ -40,9 +40,9 @@ public class STCommandHandler implements CommandExecutor
 
          if (args.length==1)
          {
-            if (args[0].equalsIgnoreCase("version"))
+            if (args[0].equalsIgnoreCase("version") || args[0].equalsIgnoreCase("status"))
             {               
-               if(!SocketTest.isServer)
+               if(SocketTest.isServer)
                {
                   sender.sendMessage(ChatColor.GREEN + "This server is running " + plugin.getDescription().getName() + ChatColor.WHITE + " SERVER " + ChatColor.GREEN + "version " + plugin.getDescription().getVersion());
                   sender.sendMessage(ChatColor.GREEN + "Using port: " + ChatColor.WHITE + SocketTest.port);
