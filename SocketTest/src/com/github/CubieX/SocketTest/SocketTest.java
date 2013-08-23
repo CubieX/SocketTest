@@ -3,7 +3,6 @@ package com.github.CubieX.SocketTest;
 import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SocketTest extends JavaPlugin
@@ -20,8 +19,8 @@ public class SocketTest extends JavaPlugin
 
    static boolean debug = false;
    static boolean isServer = true;
-   static String server = "localhost";
-   static int port = 4444;
+   static String server = "localhost"; // address or IP of the server (only relevant for the client)
+   static int port = 4444;             // port for communication between server ans client (must match on both sides!)
 
    //*************************************************
    static String usedConfigVersion = "1"; // Update this every time the config file version changes, so the plugin knows, if there is a suiting config present
@@ -49,11 +48,11 @@ public class SocketTest extends JavaPlugin
       {
          if(isServer)
          {
-            socketServer = new STSocketServer(this, port);
+            socketServer = new STSocketServer(this);
          }
          else
          {
-            socketClient = new STSocketClient(this, server, port);
+            socketClient = new STSocketClient(this);
          }
       }
       catch (IOException e)
@@ -101,9 +100,9 @@ public class SocketTest extends JavaPlugin
       boolean invalid = false;
 
       if(getConfig().contains("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
-      if(getConfig().contains("debug")){isServer = getConfig().getBoolean("isServer");}else{invalid = true;}
-      if(getConfig().contains("debug")){server = getConfig().getString("server");}else{invalid = true;}
-      if(getConfig().contains("debug")){port = getConfig().getInt("port");}else{invalid = true;}
+      if(getConfig().contains("isServer")){isServer = getConfig().getBoolean("isServer");}else{invalid = true;}
+      if(getConfig().contains("server")){server = getConfig().getString("server");}else{invalid = true;}
+      if(getConfig().contains("port")){port = getConfig().getInt("port");}else{invalid = true;}
 
       if(exceed)
       {
@@ -119,7 +118,7 @@ public class SocketTest extends JavaPlugin
    @Override
    public void onDisable()
    {      
-      //socketServer.close();
+      socketServer.stopListenerService(Bukkit.getConsoleSender());
       socketClient = null;
       socketServer = null;      
       this.getServer().getScheduler().cancelTasks(this);
@@ -131,8 +130,7 @@ public class SocketTest extends JavaPlugin
    }
 
    // #########################################################
-
-
+   
 }
 
 

@@ -75,7 +75,7 @@ public class STCommandHandler implements CommandExecutor
                {
                   if(SocketTest.isServer)
                   {
-                     socketServer.startListenerService();
+                     socketServer.startListenerService(sender);
                   }
                   else
                   {
@@ -96,7 +96,7 @@ public class STCommandHandler implements CommandExecutor
                {                        
                   if(SocketTest.isServer)
                   {
-                     //socketServer.close();
+                     socketServer.stopListenerService(sender);
                   }
                   else
                   {

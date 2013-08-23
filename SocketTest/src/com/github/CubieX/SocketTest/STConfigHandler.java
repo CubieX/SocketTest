@@ -41,6 +41,7 @@ public class STConfigHandler
       config = plugin.getConfig(); // new assignment necessary when returned value is assigned to a variable or static field(!)
       plugin.readConfigValues();
 
-      sender.sendMessage(SocketTest.logPrefix + plugin.getDescription().getName() + " " + plugin.getDescription().getVersion() + " reloaded!");       
+      sender.sendMessage(SocketTest.logPrefix + plugin.getDescription().getName() + " " + plugin.getDescription().getVersion() + " reloaded!");
+      sender.sendMessage(SocketTest.logPrefix + "If this is the SERVER and the port has changed, please stop and restart it to apply new settings.");
    } 
 }

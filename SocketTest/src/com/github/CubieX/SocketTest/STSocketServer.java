@@ -4,83 +4,107 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
+
+import org.bukkit.command.CommandSender;
 
 public class STSocketServer
 {
    private SocketTest plugin = null; 
-   //private final ServerSocket server;
-   //private boolean active = true;
-   private int port = 4444;
+   private ServerSocket server = null;
+   private boolean active = false;
 
-   public STSocketServer(SocketTest plugin, int port) throws IOException
+   public STSocketServer(SocketTest plugin) throws IOException
    {
       this.plugin = plugin;
-      this.port = port;
-      //server = new ServerSocket(port);       
+      server = new ServerSocket(SocketTest.port);
    }
 
-   public void startListenerService()
+   public void startListenerService(CommandSender sender)
    {
-      /*
-   }
-      plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
+      if(null != server)
       {
-         @Override
-         public void run()
+         if(!active)
          {
-            if(null != server)
-            {
-               SocketTest.log.info(SocketTest.logPrefix + "Starte Server und verbinde Socket...");
+            active = true; // unlock listener WHILE loop
 
-               while (active)
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
+            {
+               @Override
+               public void run()
                {
-                  Socket socket = null;
+                  SocketTest.log.info(SocketTest.logPrefix + "Starte Server...");
+
+                  while (active)
+                  {
+                     Socket socket = null;
+
+                     try
+                     {
+                        SocketTest.log.info(SocketTest.logPrefix + "Warte auf Client-Anfrage...");
+                        socket = server.accept();
+                        SocketTest.log.info(SocketTest.logPrefix + "Client-Anfrage empfangen.");
+                        handleReceivedMessageFromClient(socket);
+                     }
+                     catch (IOException e)
+                     {
+                        e.printStackTrace();
+                     }
+                     finally
+                     {
+                        if (socket != null)
+                        {
+                           try
+                           {
+                              socket.close();
+                           }
+                           catch (IOException e)
+                           {
+                              e.printStackTrace();
+                           }
+                        }
+                     }
+                  }
+
+                  // listener loop canceled. So prepare for new start and create new server instance with latest port number from config (for reloads).
                   try
                   {
-                     socket = server.accept();                     
-                     reinRaus(socket);
+                     server.close();
+                     server= null;
+                     SocketTest.log.info(SocketTest.logPrefix + "Server geschlossen.");
+                     
+                     server = new ServerSocket(SocketTest.port); // new instance to apply the new port in preparation for next start
                   }
                   catch (IOException e)
                   {
                      e.printStackTrace();
                   }
-                  finally
-                  {
-                     if (socket != null)
-                     {
-                        try
-                        {
-                           socket.close();
-                        }
-                        catch (IOException e)
-                        {
-                           e.printStackTrace();
-                        }
-                     }
-                  }
                }
-            }
-            else
-            {
-               SocketTest.log.info(SocketTest.logPrefix + "Server laeuft bereits!");
-            }
+            });
          }
-      });
+         else
+         {
+            sender.sendMessage(SocketTest.logPrefix + "Server laeuft bereits!");
+         }
+      }
+      else
+      {
+         try
+         {
+            server = new ServerSocket(SocketTest.port);  // try to create new instance again to get the server back on
+         }
+         catch (IOException e)
+         {            
+            e.printStackTrace();
+         }
+
+         sender.sendMessage(SocketTest.logPrefix + "Fehler bei Socket-Init. Bitte nochmals versuchen.");
+      }
    }
 
-   public void close()
-   {      
-      //Bukkit.getServer().getScheduler().cancelTasks(plugin); // cancel async server task
-      active = false; // this will end the server task
 
-      SocketTest.log.info(SocketTest.logPrefix + "Server geschlossen.");         
-   }
-
-   private void reinRaus(Socket socket) throws IOException
+   private void handleReceivedMessageFromClient(Socket socket) throws IOException
    {
       BufferedReader rein = new BufferedReader(new InputStreamReader(socket.getInputStream()));
       PrintStream raus = new PrintStream(socket.getOutputStream());
@@ -89,10 +113,12 @@ public class STSocketServer
       while(rein.ready())
       {
          s = rein.readLine();
+         SocketTest.log.info(SocketTest.logPrefix + "Sende Antwort: " + s);
          raus.println("ServerTXechoFromClient: " + s);
-      }*/
+      }
 
-      plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
+      /* ##########################################################################
+       plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
       {
          @Override
          public void run()
@@ -139,7 +165,7 @@ public class STSocketServer
                {
                   outputLine = kkp.processInput(inputLine);
                   out.println(outputLine);
-                  
+
                   if (outputLine.equals("Bye."))
                   {
                      break;
@@ -153,10 +179,23 @@ public class STSocketServer
                ex.printStackTrace();
             }    
          }
-      });
+      });*/
    }
-   
-   private void stopServer(PrintWriter out, BufferedReader in, Socket clientSocket, ServerSocket serverSocket)
+
+   public void stopListenerService(CommandSender sender)
+   {
+      if(active)
+      {
+         active = false; // this will end the server task after current run of listener loop
+         sender.sendMessage(SocketTest.logPrefix + "Server wird nach naechster Client-Anfrage geschlossen...");
+      }
+      else
+      {
+         sender.sendMessage(SocketTest.logPrefix + "Server ist bereits geschlossen.");
+      }
+   }
+
+   /*private void stopServer(PrintWriter out, BufferedReader in, Socket clientSocket, ServerSocket serverSocket)
    {
       try
       {
@@ -164,27 +203,27 @@ public class STSocketServer
          {
             out.close();
          }
-         
+
          if (null != in)
          {
             in.close();
          }
-         
+
          if (null != clientSocket)
          {
             clientSocket.close();
          }
-         
+
          if (null != serverSocket)
          {
             serverSocket.close();
          }
-         
+
          SocketTest.log.info(SocketTest.logPrefix + "Server closed.");
       }
       catch (IOException ex)
       {
          ex.printStackTrace();
       }
-   }
+   }*/ //#########################################################################################
 }

@@ -6,22 +6,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class STSocketClient
 {
-   private SocketTest plugin = null; 
-   private int port = 4444;
-   private String host = "localhost";
+   private SocketTest plugin = null;
 
-   public STSocketClient(SocketTest plugin, String host, int port) throws IOException
+   public STSocketClient(SocketTest plugin) throws IOException
    {
       this.plugin = plugin;
-      this.host = host;
-      this.port = port;
    }
 
    public void stringClient_send()
@@ -31,6 +26,7 @@ public class STSocketClient
          @Override
          public void run()
          {
+            /* #################################################################
             Socket clientSocket = null;
             PrintWriter out = null;
             BufferedReader in = null;
@@ -89,61 +85,68 @@ public class STSocketClient
                ex.printStackTrace();
             }
 
-            /*Socket socket = null;
+             */ //###########################################################
 
-      try
-      {
-         socket = new Socket("localhost", port);
-
-         OutputStream outStream = socket.getOutputStream();
-         PrintStream pStream = new PrintStream(outStream, true);
-         pStream.println("ClientTX: Hallo Welt!");
-         pStream.println("ClientTX: Hallo Otto!");
-
-         InputStream inStream = socket.getInputStream();
-         SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available());
-         BufferedReader buffReader = new BufferedReader(new InputStreamReader(inStream));
-
-         while (buffReader.ready())
-         {
-            SocketTest.log.info(SocketTest.logPrefix + "ClientRX: " + buffReader.readLine());
-         }
-
-      }
-      catch (UnknownHostException e)
-      {
-         SocketTest.log.info(SocketTest.logPrefix + "Unbekannter Host!");
-         e.printStackTrace();
-      }
-      catch (IOException e)
-      {
-         SocketTest.log.info(SocketTest.logPrefix + "IO Probleme!");
-         e.printStackTrace();
-      }
-      finally
-      {
-         if (socket != null)
-         {
+            Socket socket = null;
+            InetAddress hostIP = null;
+            
             try
             {
-               if(!socket.isClosed())
+               hostIP = InetAddress.getByName(SocketTest.server); // can handle strings like "my.server.ip.com" and "123.21.15.67"
+               socket = new Socket(hostIP, SocketTest.port);
+
+               OutputStream outStream = socket.getOutputStream();
+               PrintStream pStream = new PrintStream(outStream, true);
+               
+               pStream.println("ClientRequest: Hallo Welt!"); // send request to server
+               pStream.println("ClientRequest: Hallo Otto!"); // send request to server
+
+               InputStream inStream = socket.getInputStream(); // receive servers answer
+               SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available()); // FIXME Wieso immer 0 Bytes??
+               // der Server antwortet definitiv. Also scheitert das Lesen im Client hier.
+               BufferedReader buffReader = new BufferedReader(new InputStreamReader(inStream)); // read servers answer
+
+               while (buffReader.ready())
                {
-                  socket.close();
+                  SocketTest.log.info(SocketTest.logPrefix + "ServerAnswer: " + buffReader.readLine());
                }
-               SocketTest.log.info(SocketTest.logPrefix + "Socket geschlossen...");
+
+            }
+            catch (UnknownHostException e)
+            {
+               SocketTest.log.info(SocketTest.logPrefix + "Unbekannter Host!");
+               e.printStackTrace();
             }
             catch (IOException e)
             {
-               SocketTest.log.info(SocketTest.logPrefix + "Fehler beim Schliessen des Sockets!");
+               SocketTest.log.info(SocketTest.logPrefix + "IO Probleme!");
                e.printStackTrace();
             }
-         }
-      }*/
+            finally
+            {
+               if (socket != null)
+               {
+                  try
+                  {
+                     if(!socket.isClosed())
+                     {
+                        socket.close();
+                     }
+                     SocketTest.log.info(SocketTest.logPrefix + "Socket geschlossen.");
+                  }
+                  catch (IOException e)
+                  {
+                     SocketTest.log.info(SocketTest.logPrefix + "Fehler beim Schliessen des Sockets!");
+                     e.printStackTrace();
+                  }
+               }
+            }
          }
       });
    }
-
-   private void stopClient(PrintWriter out, BufferedReader in, BufferedReader stdIn, Socket kkSocket)
+   
+   //###################################################
+   /*private void stopClient(PrintWriter out, BufferedReader in, BufferedReader stdIn, Socket kkSocket)
    {
       try
       {
@@ -173,5 +176,5 @@ public class STSocketClient
       {
          ex.printStackTrace();
       }
-   }
+   }*/
 }
