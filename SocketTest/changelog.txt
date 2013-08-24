@@ -1,5 +1,14 @@
 Changelog for SocketTest by CubieX
 ----------------------------------
+V.0.0.4
+- improved gc request response
+- changed commands to be easier (no extra argument needed for server and client)
+- improvements on user and error messages
+- server will now reload automaticly when /st reload was used
+
+V.0.0.3
+- added gc request for showing remote servers RAM usage
+
 V.0.0.2
 - added handling framework for multiple requests and multiple responses
 - made communication functional and added Exception handling

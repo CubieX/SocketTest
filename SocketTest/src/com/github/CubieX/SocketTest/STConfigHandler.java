@@ -2,6 +2,7 @@ package com.github.CubieX.SocketTest;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import com.github.CubieX.SocketTest.SocketTest;
 
@@ -42,6 +43,15 @@ public class STConfigHandler
       plugin.readConfigValues();
 
       sender.sendMessage(SocketTest.logPrefix + plugin.getDescription().getName() + " " + plugin.getDescription().getVersion() + " reloaded!");
-      sender.sendMessage(SocketTest.logPrefix + "If this is the SERVER and the port has changed, please stop and restart it to apply new settings.");
+      if(SocketTest.isServer)
+      {
+         sender.sendMessage(SocketTest.logPrefix + "Restarting server to apply new port settings...");
+         plugin.restartListenerService(sender);
+         
+         if(sender instanceof Player)
+         {
+            sender.sendMessage(SocketTest.logPrefix + "Server restarted. Now listening on port: " + SocketTest.port);
+         }
+      }
    } 
 }

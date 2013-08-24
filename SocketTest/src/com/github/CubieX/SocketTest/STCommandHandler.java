@@ -31,7 +31,7 @@ public class STCommandHandler implements CommandExecutor
          player = (Player) sender;
       }
 
-      if (cmd.getName().equalsIgnoreCase("st"))
+      if (cmd.getName().equalsIgnoreCase("st")) // for CLIENT and SERVER
       {
          if (args.length == 0)
          { //no arguments, so help will be displayed
@@ -55,7 +55,7 @@ public class STCommandHandler implements CommandExecutor
                return true;
             }
 
-            if (args[0].equalsIgnoreCase("reload"))
+            if (args[0].equalsIgnoreCase("reload")) // fuer SERVER und CLIENT
             {
                if(sender.isOp() || sender.hasPermission("sockettest.admin"))
                {                        
@@ -68,7 +68,7 @@ public class STCommandHandler implements CommandExecutor
                }
             }
 
-            if (args[0].equalsIgnoreCase("serverstart"))
+            if (args[0].equalsIgnoreCase("start")) // fuer SERVER
             {
                if(sender.isOp() || sender.hasPermission("sockettest.admin"))
                {
@@ -78,18 +78,18 @@ public class STCommandHandler implements CommandExecutor
                   }
                   else
                   {
-                     SocketTest.log.severe(SocketTest.logPrefix  + ChatColor.GOLD + "Dies ist der Client!");
+                     sender.sendMessage(SocketTest.logPrefix  + ChatColor.GOLD + "Dies ist der Client!");
                   }                  
                }
                else
                {
                   sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to start the server!");
                }
-               
+
                return true;
             }
 
-            if (args[0].equalsIgnoreCase("serverstop"))
+            if (args[0].equalsIgnoreCase("stop")) // fuer SERVER
             {
                if(sender.isOp() || sender.hasPermission("sockettest.admin"))
                {                        
@@ -106,34 +106,31 @@ public class STCommandHandler implements CommandExecutor
                {
                   sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to start the server!");
                }
-                              
+
                return true;
             }
-            
-         }
-         else if (args.length == 2)
-         {
-            if (args[0].equalsIgnoreCase("clientsend"))
+
+            if (args[0].equalsIgnoreCase("gc")) // fuer CLIENT
             {
                if(sender.isOp() || sender.hasPermission("sockettest.admin"))
                {
                   if(!SocketTest.isServer)
                   {
-                     socketClient.sendClientRequest(sender, args[1]);
+                     socketClient.sendClientRequest(sender, args[0]);
                   }
                   else
                   {
-                     SocketTest.log.severe(SocketTest.logPrefix + ChatColor.GOLD + "Dies ist der Server!");
+                     sender.sendMessage(SocketTest.logPrefix + ChatColor.GOLD + "Dies ist der Server!");
                   }                  
                }
                else
                {
                   sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to start the client!");
                }
-               
+
                return true;
-            }
-         }
+            }            
+         }         
          else
          {
             sender.sendMessage(ChatColor.YELLOW + "Falsche Parameteranzahl.");

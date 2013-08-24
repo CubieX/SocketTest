@@ -68,8 +68,7 @@ public class STSocketClient
 
                if(inStream.available() > 0)
                {
-                  if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available());}
-                  //SocketTest.log.info(SocketTest.logPrefix + "Lese Antwort aus InputStream...");
+                  if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available());}                  
                   BufferedReader bufInputReader = new BufferedReader(new InputStreamReader(inStream)); // read servers response
 
                   final ArrayList<String> responseList = new ArrayList<String>();
@@ -100,7 +99,7 @@ public class STSocketClient
                }
                else
                {
-                  sendErrorMessage(sender, "Keine Antwort vom Server erhalten.");
+                  plugin.sendSyncMessage(sender, SocketTest.logPrefix + "Keine Antwort vom Server erhalten.", true);
                }
             }
             catch (UnknownHostException e)
@@ -162,20 +161,5 @@ public class STSocketClient
             }
          }
       }); 
-   }
-
-   void sendErrorMessage(final CommandSender sender, final String msg)
-   {
-      plugin.getServer().getScheduler().runTask(plugin, new Runnable()
-      { // use sync task to send message, in case the sender was a player
-         @Override
-         public void run()
-         {
-            if(null != sender)
-            {
-               sender.sendMessage(ChatColor.RED + msg);
-            }
-         }
-      }); 
-   }
+   }   
 }

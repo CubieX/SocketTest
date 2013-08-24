@@ -22,7 +22,7 @@ public class STSocketServer
       this.plugin = plugin;      
    }
 
-   public void startListenerService(CommandSender sender)
+   public void startListenerService(final CommandSender sender)
    {
       try
       {
@@ -47,7 +47,7 @@ public class STSocketServer
                @Override
                public void run()
                {
-                  SocketTest.log.info(SocketTest.logPrefix + "Starte Server...");
+                  plugin.sendSyncMessage(sender, SocketTest.logPrefix + "Starte Server auf Port: " + SocketTest.port, false);
 
                   while (active)
                   {
@@ -55,12 +55,12 @@ public class STSocketServer
 
                      try
                      {
-                        SocketTest.log.info(SocketTest.logPrefix + "Warte auf Client-Anfrage...");
+                        if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Warte auf Client-Anfrage...");}
                         // FIXME Wie den Eingangspuffer des Sockets/Ports leeren beim Serverstart?
                         // ansonsten werden ClientRequests die vor Serverstart gesendet wurden nachträglich verarbeitet
                         // was nicht gewollt ist.
                         socket = server.accept(); // server will wait at this point until a client request is received
-                        SocketTest.log.info(SocketTest.logPrefix + "Client-Anfrage empfangen.");
+                        if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Client-Anfrage empfangen.");}
                         handleReceivedRequestFromClient(socket);
                      }
                      catch (SocketException e)
@@ -105,7 +105,7 @@ public class STSocketServer
    {
       if((socket != null) && !socket.isClosed())
       {
-         SocketTest.log.info(SocketTest.logPrefix + "Lese Client-Anfrage...");
+         if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Lese Client-Anfrage...");}
          BufferedReader bufInputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
          PrintStream printStream = new PrintStream(socket.getOutputStream());
          final ArrayList<String> requestList = new ArrayList<String>();
@@ -122,15 +122,30 @@ public class STSocketServer
             {
             case "Hallo":
                if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Sende Antwort: " + "Hallo auch!");}
-               printStream.println("ServerResponse: " + "Hallo auch!");
+               printStream.println(ChatColor.WHITE + "[R] " + "Hallo auch!");
                break;
             case "Tschuess":
                if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Sende Antwort: " + "Tschuess auch!");}
-               printStream.println("ServerResponse: " + "Tschuess auch!");
+               printStream.println(ChatColor.WHITE + "[R] " + "Tschuess auch!");
+               break;
+            case "gc":
+               if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Sende Antwort: " + "/gc data");}
+               
+               Runtime runtime = Runtime.getRuntime();
+               long maxRAM = runtime.maxMemory() / (1024 * 1024);               
+               long reservedRAM = runtime.totalMemory() / (1024 * 1024);
+               long freeRAM = runtime.freeMemory() / (1024 * 1024);
+               long usedRAM = reservedRAM - freeRAM;               
+               
+               printStream.println(ChatColor.WHITE + "[R] " + "RAM maximal fuer VM: " + ChatColor.GREEN + String.format("%,d", maxRAM) + ChatColor.WHITE + " MB");
+               printStream.println(ChatColor.WHITE + "[R] " + "davon reserviert: " + ChatColor.GREEN + String.format("%,d", reservedRAM) + ChatColor.WHITE + " MB");
+               printStream.println(ChatColor.WHITE + "[R] " + "davon genutzt: " + ChatColor.GREEN + String.format("%,d", usedRAM) + ChatColor.WHITE + " MB");
+               printStream.println(ChatColor.WHITE + "[R] " + "davon frei: " + ChatColor.GREEN + String.format("%,d", freeRAM) + ChatColor.WHITE + " MB");
+               //printStream.println(ChatColor.WHITE + "[R] " + "TPS: " + Bukkit.getServer().get + " MB"); // TODO
                break;
             default:
                if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Sende Antwort: '" + req + "' ist eine ungueltige Anfrage!");}
-               printStream.println("ServerResponse: '" + req + "' ist eine ungueltige Anfrage!");
+               printStream.println(ChatColor.WHITE + "[R] '" + req + "' ist eine ungueltige Anfrage!");
             }
          }
 

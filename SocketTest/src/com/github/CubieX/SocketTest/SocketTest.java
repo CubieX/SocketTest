@@ -2,6 +2,8 @@ package com.github.CubieX.SocketTest;
 
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SocketTest extends JavaPlugin
@@ -126,6 +128,36 @@ public class SocketTest extends JavaPlugin
 
    // #########################################################
 
+   public void restartListenerService(CommandSender sender)
+   {
+      if(isServer)
+      {
+         socketServer.stopListenerService(sender);
+         socketServer.startListenerService(sender);
+      }
+   }
+   
+   public void sendSyncMessage(final CommandSender sender, final String msg, final boolean isErrorMsg)
+   {
+      getServer().getScheduler().runTask(this, new Runnable()
+      { // use sync task to send message, in case the sender was a player
+         @Override
+         public void run()
+         {
+            if(null != sender)
+            {
+               if(isErrorMsg)
+               {
+                  sender.sendMessage(ChatColor.RED + msg);
+               }
+               else
+               {
+                  sender.sendMessage(ChatColor.WHITE + msg);  
+               }               
+            }
+         }
+      }); 
+   }
 }
 
 

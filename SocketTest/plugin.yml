@@ -2,7 +2,7 @@ name: SocketTest
 main: com.github.CubieX.SocketTest.SocketTest
 author: CubieX
 softdepend: [PermissionsEx, zPermissions, bPermissions, PermissionsBukkit]
-version: 0.0.2
+version: 0.0.4
 description: Exchange data between two servers
 
 commands:
