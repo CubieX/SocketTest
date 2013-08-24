@@ -1,6 +1,5 @@
 package com.github.CubieX.SocketTest;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,7 +15,10 @@ public class SocketTest extends JavaPlugin
    //private STSchedulerHandler schedHandler = null;
    private STSocketServer socketServer = null;
    private STSocketClient socketClient = null;
+   
+   public static final String ENCODING = "UTF-8";
 
+   // config values
    static boolean debug = false;
    static boolean isServer = true;
    static String server = "localhost"; // address or IP of the server (only relevant for the client)
@@ -44,20 +46,13 @@ public class SocketTest extends JavaPlugin
 
       eListener = new STEntityListener(this);
 
-      try
+      if(isServer)
       {
-         if(isServer)
-         {
-            socketServer = new STSocketServer(this);
-         }
-         else
-         {
-            socketClient = new STSocketClient(this);
-         }
+         socketServer = new STSocketServer(this);
       }
-      catch (IOException e)
-      {         
-         e.printStackTrace();
+      else
+      {
+         socketClient = new STSocketClient(this);
       }
 
       comHandler = new STCommandHandler(this, cHandler, socketServer, socketClient);      
@@ -117,7 +112,7 @@ public class SocketTest extends JavaPlugin
 
    @Override
    public void onDisable()
-   {      
+   {
       socketServer.stopListenerService(Bukkit.getConsoleSender());
       socketClient = null;
       socketServer = null;      
@@ -130,7 +125,7 @@ public class SocketTest extends JavaPlugin
    }
 
    // #########################################################
-   
+
 }
 
 

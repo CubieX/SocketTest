@@ -1,5 +1,9 @@
 Changelog for SocketTest by CubieX
 ----------------------------------
+V.0.0.2
+- added handling framework for multiple requests and multiple responses
+- made communication functional and added Exception handling
+- Compiled with Java 7 due to switch/case with strings
 
 V.0.0.1
 - Initial Alpha version

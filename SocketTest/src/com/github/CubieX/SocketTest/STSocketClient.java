@@ -6,90 +6,35 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 
 public class STSocketClient
 {
    private SocketTest plugin = null;
+   private final int MAX_ATTEMPS = 20;
 
-   public STSocketClient(SocketTest plugin) throws IOException
+   public STSocketClient(SocketTest plugin)
    {
       this.plugin = plugin;
    }
 
-   public void stringClient_send()
+   public void sendClientRequest(final CommandSender sender, final String request)
    {
       plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable()
       {
          @Override
          public void run()
          {
-            /* #################################################################
-            Socket clientSocket = null;
-            PrintWriter out = null;
-            BufferedReader in = null;
-            InetAddress hostIP = null;
-
-            try
-            {
-               hostIP = InetAddress.getByName(host);
-               clientSocket = new Socket(hostIP, port);
-               out = new PrintWriter(clientSocket.getOutputStream(), true);
-               in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            }
-            catch (UnknownHostException e)
-            {
-               SocketTest.log.severe(SocketTest.logPrefix + "Don't know about host: " + host);
-               stopClient(out, in, null, clientSocket);
-               return;
-            }
-            catch (IOException e)
-            {
-               SocketTest.log.severe(SocketTest.logPrefix + "Couldn't get I/O for the connection to: " + host + ". Stopping Client.");
-               stopClient(out, in, null, clientSocket);
-               return;
-            }
-
-            try
-            {
-               BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-               String fromServer;
-               String fromUser;
-
-               SocketTest.log.info(SocketTest.logPrefix + "Client running.");
-
-               while ((fromServer = in.readLine()) != null)
-               {
-                  SocketTest.log.info(SocketTest.logPrefix + "Server: " + fromServer);
-
-                  if (fromServer.equals("Bye."))
-                  {
-                     break;                     
-                  }
-
-                  fromUser = stdIn.readLine();
-
-                  if (fromUser != null)
-                  {
-                     SocketTest.log.info(SocketTest.logPrefix + "Client: " + fromUser);
-                     out.println(fromUser);
-                  }
-               }
-
-               stopClient(out, in, stdIn, clientSocket);               
-            }
-            catch (IOException ex)
-            {
-               ex.printStackTrace();
-            }
-
-             */ //###########################################################
-
             Socket socket = null;
             InetAddress hostIP = null;
-            
+
             try
             {
                hostIP = InetAddress.getByName(SocketTest.server); // can handle strings like "my.server.ip.com" and "123.21.15.67"
@@ -97,30 +42,74 @@ public class STSocketClient
 
                OutputStream outStream = socket.getOutputStream();
                PrintStream pStream = new PrintStream(outStream, true);
+
+               pStream.println(request); // send request to server
+               //pStream.println("ClientRequest: Hallo Welt!"); // send request to server (more than one is theoretiocally possible at a time)
+               //pStream.println("ClientRequest: Hallo Otto!"); // send request to server
                
-               pStream.println("ClientRequest: Hallo Welt!"); // send request to server
-               pStream.println("ClientRequest: Hallo Otto!"); // send request to server
-
                InputStream inStream = socket.getInputStream(); // receive servers answer
-               SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available()); // FIXME Wieso immer 0 Bytes??
-               // der Server antwortet definitiv. Also scheitert das Lesen im Client hier.
-               BufferedReader buffReader = new BufferedReader(new InputStreamReader(inStream)); // read servers answer
 
-               while (buffReader.ready())
+               int attemps = 0;
+
+               while((inStream.available()) == 0 && (attemps < MAX_ATTEMPS))
                {
-                  SocketTest.log.info(SocketTest.logPrefix + "ServerAnswer: " + buffReader.readLine());
+                  try
+                  {
+                     attemps++;
+                     Thread.sleep(50); // wait 50 ms until next check of input stream                     
+                  }
+                  catch (InterruptedException e)
+                  {
+                     e.printStackTrace();
+                  }
                }
 
+               if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Empfangsversuche: " + attemps);}
+
+               if(inStream.available() > 0)
+               {
+                  if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "verfuegbare Bytes: " + inStream.available());}
+                  //SocketTest.log.info(SocketTest.logPrefix + "Lese Antwort aus InputStream...");
+                  BufferedReader bufInputReader = new BufferedReader(new InputStreamReader(inStream)); // read servers response
+
+                  final ArrayList<String> responseList = new ArrayList<String>();
+
+                  while (bufInputReader.ready()) // server may send multiple lines as response
+                  {
+                     responseList.add(bufInputReader.readLine());                                                         
+                  }
+
+                  plugin.getServer().getScheduler().runTask(plugin, new Runnable()
+                  { // use sync task to send message, in case the sender was a player
+                     @Override
+                     public void run()
+                     {
+                        for(String res : responseList) // loop through all received response messages and handle them
+                        {                          
+                           sender.sendMessage(res);   
+                        }
+                     }
+                  });
+
+                  // cleanup                  
+                  bufInputReader.close();
+                  inStream.close();                  
+                  outStream.close();
+                  pStream.flush();
+                  pStream.close();
+               }
+               else
+               {
+                  sendErrorMessage(sender, "Keine Antwort vom Server erhalten.");
+               }
             }
             catch (UnknownHostException e)
             {
-               SocketTest.log.info(SocketTest.logPrefix + "Unbekannter Host!");
-               e.printStackTrace();
+               sendExceptionMessage(sender, e);               
             }
             catch (IOException e)
-            {
-               SocketTest.log.info(SocketTest.logPrefix + "IO Probleme!");
-               e.printStackTrace();
+            {               
+               sendExceptionMessage(sender, e);               
             }
             finally
             {
@@ -132,49 +121,61 @@ public class STSocketClient
                      {
                         socket.close();
                      }
-                     SocketTest.log.info(SocketTest.logPrefix + "Socket geschlossen.");
+                     if(SocketTest.debug){SocketTest.log.info(SocketTest.logPrefix + "Socket geschlossen.");}
                   }
                   catch (IOException e)
                   {
-                     SocketTest.log.info(SocketTest.logPrefix + "Fehler beim Schliessen des Sockets!");
-                     e.printStackTrace();
+                     sendExceptionMessage(sender, e);
+                     //SocketTest.log.info(SocketTest.logPrefix + "Fehler beim Schliessen des Sockets!");                     
                   }
                }
             }
          }
       });
    }
-   
-   //###################################################
-   /*private void stopClient(PrintWriter out, BufferedReader in, BufferedReader stdIn, Socket kkSocket)
+
+   void sendExceptionMessage(final CommandSender sender, final Exception ex)
    {
-      try
-      {
-         if (null != out)
+      plugin.getServer().getScheduler().runTask(plugin, new Runnable()
+      { // use sync task to send message, in case the sender was a player
+         @Override
+         public void run()
          {
-            out.close();
+            if(ex instanceof UnknownHostException)
+            {
+               sender.sendMessage(ChatColor.RED + SocketTest.logPrefix + "Unbekannter Server: " + SocketTest.server);
+               ex.printStackTrace();
+            }
+            else if (ex instanceof ConnectException)
+            {
+               sender.sendMessage(ChatColor.RED + SocketTest.logPrefix + "Verbindungsaufbau zum Server fehlgeschlagen.");
+            }
+            else if (ex instanceof IOException)
+            {
+               sender.sendMessage(ChatColor.RED + SocketTest.logPrefix + "IO Probleme.");
+               ex.printStackTrace();
+            }
+            else
+            {
+               sender.sendMessage(ChatColor.RED + SocketTest.logPrefix + "Fehler bei Bearbeitung der Anfrage! (siehe Logfile)");
+               ex.printStackTrace();
+            }
          }
+      }); 
+   }
 
-         if (null != in)
+   void sendErrorMessage(final CommandSender sender, final String msg)
+   {
+      plugin.getServer().getScheduler().runTask(plugin, new Runnable()
+      { // use sync task to send message, in case the sender was a player
+         @Override
+         public void run()
          {
-            in.close();
+            if(null != sender)
+            {
+               sender.sendMessage(ChatColor.RED + msg);
+            }
          }
-
-         if (null != stdIn)
-         {
-            stdIn.close();
-         }
-
-         if (null != kkSocket)
-         {
-            kkSocket.close();
-         }
-
-         SocketTest.log.info(SocketTest.logPrefix + "Client stopped.");
-      }
-      catch (IOException ex)
-      {
-         ex.printStackTrace();
-      }
-   }*/
+      }); 
+   }
 }

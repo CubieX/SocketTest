@@ -37,8 +37,7 @@ public class STCommandHandler implements CommandExecutor
          { //no arguments, so help will be displayed
             return false;
          }
-
-         if (args.length==1)
+         else if(args.length==1)
          {
             if (args[0].equalsIgnoreCase("version") || args[0].equalsIgnoreCase("status"))
             {               
@@ -79,7 +78,7 @@ public class STCommandHandler implements CommandExecutor
                   }
                   else
                   {
-                     SocketTest.log.severe(SocketTest.logPrefix + "Dies ist der Client!");
+                     SocketTest.log.severe(SocketTest.logPrefix  + ChatColor.GOLD + "Dies ist der Client!");
                   }                  
                }
                else
@@ -100,7 +99,7 @@ public class STCommandHandler implements CommandExecutor
                   }
                   else
                   {
-                     SocketTest.log.severe(SocketTest.logPrefix + "Dies ist der Client!");
+                     sender.sendMessage(SocketTest.logPrefix  + ChatColor.GOLD + "Dies ist der Client!");
                   }
                }
                else
@@ -110,38 +109,26 @@ public class STCommandHandler implements CommandExecutor
                               
                return true;
             }
-
+            
+         }
+         else if (args.length == 2)
+         {
             if (args[0].equalsIgnoreCase("clientsend"))
             {
                if(sender.isOp() || sender.hasPermission("sockettest.admin"))
                {
                   if(!SocketTest.isServer)
                   {
-                     socketClient.stringClient_send();
+                     socketClient.sendClientRequest(sender, args[1]);
                   }
                   else
                   {
-                     SocketTest.log.severe(SocketTest.logPrefix + "Dies ist der Server!");
+                     SocketTest.log.severe(SocketTest.logPrefix + ChatColor.GOLD + "Dies ist der Server!");
                   }                  
                }
                else
                {
                   sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to start the client!");
-               }
-               
-               return true;
-            }
-
-            if (args[0].equalsIgnoreCase("send"))
-            {
-               if(sender.isOp() || sender.hasPermission("sockettest.admin"))
-               {                        
-
-                  
-               }
-               else
-               {
-                  sender.sendMessage(ChatColor.RED + "You do not have sufficient permission to reload " + plugin.getDescription().getName() + "!");
                }
                
                return true;
