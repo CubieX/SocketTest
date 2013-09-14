@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<jardesc>
+    <jar path="E:/Games/Minecraft/Pluginentwicklung/SocketTest/SocketTest.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/SocketTest/packPluginJAR.jardesc" exportErrors="false" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <file path="/SocketTest/plugin.yml"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STConfigHandler.java"/>
+        <file path="/SocketTest/changelog.txt"/>
+        <file path="/SocketTest/src/config.yml"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STSchedulerHandler.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STEntityListener.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STSocketServer.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{SocketTest.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STSocketClient.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STCommandHandler.java"/>
+        <javaElement handleIdentifier="=SocketTest/src&lt;com.github.CubieX.SocketTest{STSocketProtocol.java"/>
+    </selectedElements>
+</jardesc>
