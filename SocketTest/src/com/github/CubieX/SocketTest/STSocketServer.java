@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class STSocketServer
+public class STSocketServer // TCP
 {
    private SocketTest plugin = null; 
    private ServerSocket server = null;
@@ -100,6 +100,29 @@ public class STSocketServer
          sender.sendMessage(ChatColor.RED + SocketTest.logPrefix + "Fehler! Port scheint belegt zu sein. Bitte nochmals versuchen.");
       }
    }
+   
+   /* UDP Socket Server
+    public static void main(String args[]) throws Exception
+      {
+         DatagramSocket serverSocket = new DatagramSocket(9876);
+            byte[] receiveData = new byte[1024];
+            byte[] sendData = new byte[1024];
+            while(true)
+               {
+                  DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                  serverSocket.receive(receivePacket);
+                  String sentence = new String( receivePacket.getData());
+                  System.out.println("RECEIVED: " + sentence);
+                  InetAddress IPAddress = receivePacket.getAddress();
+                  int port = receivePacket.getPort();
+                  String capitalizedSentence = sentence.toUpperCase();
+                  sendData = capitalizedSentence.getBytes();
+                  DatagramPacket sendPacket =
+                  new DatagramPacket(sendData, sendData.length, IPAddress, port);
+                  serverSocket.send(sendPacket);
+               }
+      } - See more at: http://systembash.com/content/a-simple-java-udp-server-and-udp-client/#sthash.MQ3Tqu49.dpuf
+    */
 
    private void handleReceivedRequestFromClient(Socket socket) throws IOException
    {

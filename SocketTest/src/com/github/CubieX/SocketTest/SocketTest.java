@@ -1,6 +1,6 @@
 /*
  * SocketTest - A CraftBukkit plugin utilizing sockets to connect 2 servers
- * Copyright (C) 2013  CubieX
+ * Copyright (C) 2014  CubieX
  * 
  * This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
@@ -75,11 +75,11 @@ public class SocketTest extends JavaPlugin
 
       if(!SocketTest.isServer)
       {
-         log.info(this.getDescription().getName() + " SERVER version " + getDescription().getVersion() + " is enabled!");
+         log.info(logPrefix + " SERVER version " + getDescription().getVersion() + " is enabled!");
       }
       else
       {
-         log.info(this.getDescription().getName() + " CLIENT version " + getDescription().getVersion() + " is enabled!");
+         log.info(logPrefix + " CLIENT version " + getDescription().getVersion() + " is enabled!");
       }      
 
       //schedHandler.startPlayerInWaterCheckScheduler_SynchRepeating();
@@ -107,10 +107,10 @@ public class SocketTest extends JavaPlugin
       boolean exceed = false;
       boolean invalid = false;
 
-      if(getConfig().contains("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
-      if(getConfig().contains("isServer")){isServer = getConfig().getBoolean("isServer");}else{invalid = true;}
-      if(getConfig().contains("server")){server = getConfig().getString("server");}else{invalid = true;}
-      if(getConfig().contains("port")){port = getConfig().getInt("port");}else{invalid = true;}
+      if(getConfig().isSet("debug")){debug = getConfig().getBoolean("debug");}else{invalid = true;}
+      if(getConfig().isSet("isServer")){isServer = getConfig().getBoolean("isServer");}else{invalid = true;}
+      if(getConfig().isSet("server")){server = getConfig().getString("server");}else{invalid = true;}
+      if(getConfig().isSet("port")){port = getConfig().getInt("port");}else{invalid = true;}
 
       if(exceed)
       {
